@@ -52,7 +52,8 @@ import {
   DEFAULT_AUTH0_CLIENT,
   INVALID_REFRESH_TOKEN_ERROR_MESSAGE,
   DEFAULT_NOW_PROVIDER,
-  DEFAULT_FETCH_TIMEOUT_MS
+  DEFAULT_FETCH_TIMEOUT_MS,
+  DEFAULT_AUTHORIZE_PATH
 } from './constants';
 
 import {
@@ -366,8 +367,8 @@ export default class Auth0Client {
     };
   }
 
-  private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
-    return this._url(`/authorize?${createQueryParams(authorizeOptions)}`);
+  private _authorizeUrl(authorizeOptions: AuthorizeOptions, authorizePath = DEFAULT_AUTHORIZE_PATH) {
+    return this._url(`/${authorizePath}?${createQueryParams(authorizeOptions)}`);
   }
 
   private async _verifyIdToken(
@@ -440,7 +441,9 @@ export default class Auth0Client {
       redirect_uri
     );
 
-    const url = this._authorizeUrl(params);
+    const authPath = options.authorizePath || this.options.authorizePath;
+
+    const url = this._authorizeUrl(params, authPath);
     const organizationId = options.organization || this.options.organization;
 
     this.transactionManager.create({
@@ -512,10 +515,12 @@ export default class Auth0Client {
       this.options.redirect_uri || window.location.origin
     );
 
+    const authPath = options.authorizePath || this.options.authorizePath;
+
     const url = this._authorizeUrl({
       ...params,
       response_mode: 'web_message'
-    });
+    }, authPath);
 
     config.popup.location.href = url;
 
@@ -1090,9 +1095,11 @@ export default class Auth0Client {
       nonceIn,
       code_challenge,
       options.redirect_uri ||
-        this.options.redirect_uri ||
-        window.location.origin
+      this.options.redirect_uri ||
+      window.location.origin
     );
+
+    const authPath = options.authorizePath || this.options.authorizePath;
 
     const orgIdHint = this.cookieStorage.get<string>(this.orgHintCookieName);
 
@@ -1104,7 +1111,7 @@ export default class Auth0Client {
       ...params,
       prompt: 'none',
       response_mode: 'web_message'
-    });
+    }, authPath);
 
     try {
       // When a browser is running in a Cross-Origin Isolated context, using iframes is not possible.

@@ -1,6 +1,8 @@
 import { PopupConfigOptions } from './global';
 import version from './version';
 
+export const DEFAULT_AUTHORIZE_PATH = 'authorize';
+
 /**
  * @ignore
  */

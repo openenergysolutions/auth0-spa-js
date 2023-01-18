@@ -123,6 +123,10 @@ export interface Auth0ClientOptions extends BaseLoginOptions {
    */
   client_id: string;
   /**
+   * The path prefix for authorization requests. Defaults to `/authorize`.
+   */
+  authorizePath?: string;
+  /**
    * The default URL where Auth0 will redirect your browser to with
    * the authentication result. It must be whitelisted in
    * the "Allowed Callback URLs" field in your Auth0 Application's
@@ -286,6 +290,10 @@ export interface AuthorizeOptions extends BaseLoginOptions {
 export interface RedirectLoginOptions<TAppState = any>
   extends BaseLoginOptions {
   /**
+   * The path prefix for authorization requests. Defaults to `/authorize`.
+   */
+  authorizePath?: string;
+  /**
    * The URL where Auth0 will redirect your browser to with
    * the authentication result. It must be whitelisted in
    * the "Allowed Callback URLs" field in your Auth0 Application's
@@ -313,7 +321,7 @@ export interface RedirectLoginResult<TAppState = any> {
   appState?: TAppState;
 }
 
-export interface PopupLoginOptions extends BaseLoginOptions {}
+export interface PopupLoginOptions extends BaseLoginOptions { }
 
 export interface PopupConfigOptions {
   /**
@@ -364,6 +372,10 @@ export interface GetTokenSilentlyOptions {
    */
   ignoreCache?: boolean;
 
+  /**
+   * The path prefix for authorization requests. Defaults to `/authorize`.
+   */
+  authorizePath?: string;
   /**
    * There's no actual redirect when getting a token silently,
    * but, according to the spec, a `redirect_uri` param is required.
