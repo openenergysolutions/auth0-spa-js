@@ -369,7 +369,7 @@ export default class Auth0Client {
 
   private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
     // Extract authorizePath from options
-    const { authorizePath = this.options.authorizePath || 'authorize', ...filteredOptions } = authorizeOptions;
+    const { authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH, ...filteredOptions } = authorizeOptions;
     return this._url(`/${authorizePath}?${createQueryParams(filteredOptions)}`);
   }
 
