@@ -367,8 +367,10 @@ export default class Auth0Client {
     };
   }
 
-  private _authorizeUrl(authorizeOptions: AuthorizeOptions, authorizePath = DEFAULT_AUTHORIZE_PATH) {
-    return this._url(`/${authorizePath}?${createQueryParams(authorizeOptions)}`);
+  private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
+    // Extract authorizePath from options
+    const { authorizePath = this.options.authorizePath || 'authorize', ...filteredOptions } = authorizeOptions;
+    return this._url(`/${authorizePath}?${createQueryParams(filteredOptions)}`);
   }
 
   private async _verifyIdToken(
@@ -441,9 +443,7 @@ export default class Auth0Client {
       redirect_uri
     );
 
-    const authPath = options.authorizePath || this.options.authorizePath;
-
-    const url = this._authorizeUrl(params, authPath);
+    const url = this._authorizeUrl(params);
     const organizationId = options.organization || this.options.organization;
 
     this.transactionManager.create({
@@ -515,12 +515,10 @@ export default class Auth0Client {
       this.options.redirect_uri || window.location.origin
     );
 
-    const authPath = options.authorizePath || this.options.authorizePath;
-
     const url = this._authorizeUrl({
       ...params,
       response_mode: 'web_message'
-    }, authPath);
+    });
 
     config.popup.location.href = url;
 
@@ -1099,8 +1097,6 @@ export default class Auth0Client {
       window.location.origin
     );
 
-    const authPath = options.authorizePath || this.options.authorizePath;
-
     const orgIdHint = this.cookieStorage.get<string>(this.orgHintCookieName);
 
     if (orgIdHint && !params.organization) {
@@ -1111,7 +1107,7 @@ export default class Auth0Client {
       ...params,
       prompt: 'none',
       response_mode: 'web_message'
-    }, authPath);
+    });
 
     try {
       // When a browser is running in a Cross-Origin Isolated context, using iframes is not possible.
