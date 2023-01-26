@@ -332,6 +332,7 @@ export default class Auth0Client {
     // as they're options for the client and not for the IdP.
     // ** IMPORTANT ** If adding a new client option, include it in this destructure list.
     const {
+      authorizePath,
       useRefreshTokens,
       useCookiesForTransactions,
       useFormData,
@@ -367,10 +368,8 @@ export default class Auth0Client {
     };
   }
 
-  private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
-    // Extract authorizePath from options
-    const { authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH, ...filteredOptions } = authorizeOptions;
-    return this._url(`/${authorizePath}?${createQueryParams(filteredOptions)}`);
+  private _authorizeUrl(authorizeOptions: AuthorizeOptions, authorizePath: string) {
+    return this._url(`/${authorizePath}?${createQueryParams(authorizeOptions)}`);
   }
 
   private async _verifyIdToken(
@@ -426,7 +425,7 @@ export default class Auth0Client {
   public async buildAuthorizeUrl(
     options: RedirectLoginOptions = {}
   ): Promise<string> {
-    const { redirect_uri, appState, ...authorizeOptions } = options;
+    const { authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH, redirect_uri, appState, ...authorizeOptions } = options;
 
     const stateIn = encode(createRandomString());
     const nonceIn = encode(createRandomString());
@@ -443,7 +442,7 @@ export default class Auth0Client {
       redirect_uri
     );
 
-    const url = this._authorizeUrl(params);
+    const url = this._authorizeUrl(params, authorizePath);
     const organizationId = options.organization || this.options.organization;
 
     this.transactionManager.create({
@@ -500,7 +499,7 @@ export default class Auth0Client {
       }
     }
 
-    const { ...authorizeOptions } = options;
+    const { authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH, ...authorizeOptions } = options;
     const stateIn = encode(createRandomString());
     const nonceIn = encode(createRandomString());
     const code_verifier = createRandomString();
@@ -518,7 +517,7 @@ export default class Auth0Client {
     const url = this._authorizeUrl({
       ...params,
       response_mode: 'web_message'
-    });
+    }, authorizePath);
 
     config.popup.location.href = url;
 
@@ -1085,7 +1084,7 @@ export default class Auth0Client {
     const code_challengeBuffer = await sha256(code_verifier);
     const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
 
-    const { detailedResponse, ...withoutClientOptions } = options;
+    const { authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH, detailedResponse, ...withoutClientOptions } = options;
 
     const params = this._getParams(
       withoutClientOptions,
@@ -1107,7 +1106,7 @@ export default class Auth0Client {
       ...params,
       prompt: 'none',
       response_mode: 'web_message'
-    });
+    }, authorizePath);
 
     try {
       // When a browser is running in a Cross-Origin Isolated context, using iframes is not possible.
