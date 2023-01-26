@@ -75,7 +75,7 @@ describe('Auth0Client', () => {
 
   beforeEach(() => {
     // https://www.benmvp.com/blog/mocking-window-location-methods-jest-jsdom/
-    delete window.location;
+    delete (window as any).location;
     window.location = Object.defineProperties(
       {},
       {
@@ -698,31 +698,30 @@ describe('Auth0Client', () => {
           supported: true
         }
       ].forEach(({ name, userAgent, supported }) =>
-        it(`refreshes the token ${
-          supported ? 'with' : 'without'
-        } the worker, when ${name}`, async () => {
-          const originalUserAgent = window.navigator.userAgent;
+        it(`refreshes the token ${supported ? 'with' : 'without'
+          } the worker, when ${name}`, async () => {
+            const originalUserAgent = window.navigator.userAgent;
 
-          Object.defineProperty(window.navigator, 'userAgent', {
-            value: userAgent,
-            configurable: true
-          });
+            Object.defineProperty(window.navigator, 'userAgent', {
+              value: userAgent,
+              configurable: true
+            });
 
-          const auth0 = setup({
-            useRefreshTokens: true,
-            cacheLocation: 'memory'
-          });
+            const auth0 = setup({
+              useRefreshTokens: true,
+              cacheLocation: 'memory'
+            });
 
-          if (supported) {
-            expect((<any>auth0).worker).toBeDefined();
-          } else {
-            expect((<any>auth0).worker).toBeUndefined();
-          }
+            if (supported) {
+              expect((<any>auth0).worker).toBeDefined();
+            } else {
+              expect((<any>auth0).worker).toBeUndefined();
+            }
 
-          Object.defineProperty(window.navigator, 'userAgent', {
-            value: originalUserAgent
-          });
-        })
+            Object.defineProperty(window.navigator, 'userAgent', {
+              value: originalUserAgent
+            });
+          })
       );
     });
 

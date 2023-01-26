@@ -44,7 +44,7 @@ describe('Auth0Client', () => {
 
   beforeEach(() => {
     // https://www.benmvp.com/blog/mocking-window-location-methods-jest-jsdom/
-    delete window.location;
+    delete (window as any).location;
     window.location = Object.defineProperties(
       {},
       {

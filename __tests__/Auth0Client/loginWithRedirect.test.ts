@@ -62,7 +62,7 @@ describe('Auth0Client', () => {
 
   beforeEach(() => {
     // https://www.benmvp.com/blog/mocking-window-location-methods-jest-jsdom/
-    delete window.location;
+    delete (window as any).location;
     window.location = Object.defineProperties(
       {},
       {
@@ -498,6 +498,7 @@ describe('Auth0Client', () => {
       // ** IMPORTANT **: if adding a new client option, ensure it is added to the destructure
       // list in Auth0Client._getParams so that it is not sent to the IdP
       const auth0 = setup({
+        authorizePath: 'authorize',
         useRefreshTokens: true,
         advancedOptions: {
           defaultScope: 'openid profile email offline_access'

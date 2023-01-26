@@ -36,7 +36,7 @@ describe('Auth0Client', () => {
 
   beforeEach(() => {
     // https://www.benmvp.com/blog/mocking-window-location-methods-jest-jsdom/
-    delete window.location;
+    delete (window as any).location;
     window.location = Object.defineProperties(
       {},
       {
@@ -86,7 +86,7 @@ describe('Auth0Client', () => {
       auth0.logout();
 
       expect(esCookie.remove).toHaveBeenCalledWith(
-          `auth0.${TEST_CLIENT_ID}.is.authenticated`, { domain: TEST_DOMAIN }
+        `auth0.${TEST_CLIENT_ID}.is.authenticated`, { domain: TEST_DOMAIN }
       );
     });
 

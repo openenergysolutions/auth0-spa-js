@@ -35,7 +35,7 @@ describe('Auth0Client', () => {
 
   beforeEach(() => {
     // https://www.benmvp.com/blog/mocking-window-location-methods-jest-jsdom/
-    delete window.location;
+    delete (window as any).location;
     window.location = Object.defineProperties(
       {},
       {
@@ -93,7 +93,7 @@ describe('Auth0Client', () => {
               error: 'some-error'
             }
           });
-        } catch {}
+        } catch { }
 
         const result = await auth0.isAuthenticated();
 
@@ -106,7 +106,7 @@ describe('Auth0Client', () => {
           await loginWithRedirect(auth0, undefined, {
             token: { success: false }
           });
-        } catch {}
+        } catch { }
         const result = await auth0.isAuthenticated();
         expect(result).toBe(false);
       });
@@ -133,7 +133,7 @@ describe('Auth0Client', () => {
             }
           }
         });
-      } catch {}
+      } catch { }
 
       const result = await auth0.isAuthenticated();
 
