@@ -166,7 +166,7 @@ export const decode = (value: string) => atob(value);
 
 export const createQueryParams = (params: any) => {
   return Object.keys(params)
-    .filter(k => typeof params[k] !== 'undefined')
+    .filter(k => typeof params[k] !== 'undefined' && encodeURIComponent(params[k]) !== '')
     .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
     .join('&');
 };
