@@ -2,6 +2,7 @@ import { PopupConfigOptions } from './global';
 import version from './version';
 
 export const DEFAULT_AUTHORIZE_PATH = 'authorize';
+export const DEFAULT_TOKEN_PATH = 'oauth/token';
 
 /**
  * @ignore

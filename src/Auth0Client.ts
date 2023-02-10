@@ -53,7 +53,8 @@ import {
   INVALID_REFRESH_TOKEN_ERROR_MESSAGE,
   DEFAULT_NOW_PROVIDER,
   DEFAULT_FETCH_TIMEOUT_MS,
-  DEFAULT_AUTHORIZE_PATH
+  DEFAULT_AUTHORIZE_PATH,
+  DEFAULT_TOKEN_PATH,
 } from './constants';
 
 import {
@@ -333,6 +334,7 @@ export default class Auth0Client {
     // ** IMPORTANT ** If adding a new client option, include it in this destructure list.
     const {
       authorizePath,
+      tokenPath,
       useRefreshTokens,
       useCookiesForTransactions,
       useFormData,
@@ -499,7 +501,7 @@ export default class Auth0Client {
       }
     }
 
-    const { authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH, ...authorizeOptions } = options;
+    const { authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH, tokenPath = this.options.tokenPath || DEFAULT_TOKEN_PATH, ...authorizeOptions } = options;
     const stateIn = encode(createRandomString());
     const nonceIn = encode(createRandomString());
     const code_verifier = createRandomString();
@@ -545,7 +547,8 @@ export default class Auth0Client {
         redirect_uri: params.redirect_uri,
         auth0Client: this.options.auth0Client,
         useFormData: this.options.useFormData,
-        timeout: this.httpTimeoutMs
+        timeout: this.httpTimeoutMs,
+        tokenPath
       } as OAuthTokenOptions,
       this.worker
     );
@@ -701,6 +704,7 @@ export default class Auth0Client {
       throw new Error('Invalid state');
     }
 
+    const tokenPath = this.options.tokenPath || DEFAULT_TOKEN_PATH;
     const tokenOptions = {
       audience: transaction.audience,
       scope: transaction.scope,
@@ -711,7 +715,8 @@ export default class Auth0Client {
       code,
       auth0Client: this.options.auth0Client,
       useFormData: this.options.useFormData,
-      timeout: this.httpTimeoutMs
+      timeout: this.httpTimeoutMs,
+      tokenPath
     } as OAuthTokenOptions;
     // some old versions of the SDK might not have added redirect_uri to the
     // transaction, we dont want the key to be set to undefined.
@@ -1084,7 +1089,7 @@ export default class Auth0Client {
     const code_challengeBuffer = await sha256(code_verifier);
     const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
 
-    const { authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH, detailedResponse, ...withoutClientOptions } = options;
+    const { authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH, tokenPath = this.options.tokenPath || DEFAULT_TOKEN_PATH, detailedResponse, ...withoutClientOptions } = options;
 
     const params = this._getParams(
       withoutClientOptions,
@@ -1152,7 +1157,8 @@ export default class Auth0Client {
           redirect_uri: params.redirect_uri,
           auth0Client: this.options.auth0Client,
           useFormData: this.options.useFormData,
-          timeout: customOptions.timeout || this.httpTimeoutMs
+          timeout: customOptions.timeout || this.httpTimeoutMs,
+          tokenPath
         } as OAuthTokenOptions,
         this.worker
       );

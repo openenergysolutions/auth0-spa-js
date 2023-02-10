@@ -143,6 +143,114 @@ describe('oauthToken', () => {
     );
   });
 
+  it('calls token with the correct url', async () => {
+    mockFetch.mockReturnValue(
+      new Promise(res =>
+        res({ ok: true, json: () => new Promise(ress => ress(true)) })
+      )
+    );
+    const auth0Client = {
+      name: 'auth0-spa-js',
+      version: version
+    };
+
+    await oauthToken({
+      redirect_uri: 'http://localhost',
+      grant_type: 'authorization_code',
+      baseUrl: 'https://test.com',
+      client_id: 'client_idIn',
+      code: 'codeIn',
+      code_verifier: 'code_verifierIn',
+      auth0Client,
+      tokenPath: 'token'
+    });
+
+    expect(mockFetch).toBeCalledWith('https://test.com/token', {
+      body: '{"redirect_uri":"http://localhost","grant_type":"authorization_code","client_id":"client_idIn","code":"codeIn","code_verifier":"code_verifierIn"}',
+      headers: {
+        'Content-Type': 'application/json',
+        'Auth0-Client': btoa(JSON.stringify(auth0Client))
+      },
+      method: 'POST',
+      signal: abortController.signal
+    });
+
+    expect(mockFetch.mock.calls[0][1].signal).not.toBeUndefined();
+  });
+
+  it('calls token with a worker with the correct url', async () => {
+    mockFetch.mockReturnValue(
+      new Promise(res =>
+        res({ ok: true, json: () => new Promise(ress => ress(true)) })
+      )
+    );
+
+    const worker = new Worker();
+    const spy = jest.spyOn(worker, 'postMessage');
+
+    const body = {
+      redirect_uri: 'http://localhost',
+      grant_type: 'authorization_code',
+      client_id: 'client_idIn',
+      code: 'codeIn',
+      code_verifier: 'code_verifierIn'
+    };
+
+    const auth0Client = {
+      name: 'auth0-spa-js',
+      version: version
+    };
+
+    await oauthToken(
+      {
+        redirect_uri: 'http://localhost',
+        grant_type: 'authorization_code',
+        baseUrl: 'https://test.com',
+        client_id: 'client_idIn',
+        code: 'codeIn',
+        code_verifier: 'code_verifierIn',
+        audience: '__test_audience__',
+        scope: '__test_scope__',
+        auth0Client,
+        tokenPath: 'token'
+      },
+      worker
+    );
+
+    expect(mockFetch).toBeCalledWith('https://test.com/token', {
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+        'Auth0-Client': btoa(JSON.stringify(auth0Client))
+      },
+      method: 'POST',
+      signal: abortController.signal
+    });
+
+    expect(mockFetch.mock.calls[0][1].signal).not.toBeUndefined();
+
+    expect(spy).toHaveBeenCalledWith(
+      {
+        fetchUrl: 'https://test.com/token',
+        fetchOptions: {
+          body: JSON.stringify(body),
+          headers: {
+            'Content-Type': 'application/json',
+            'Auth0-Client': btoa(JSON.stringify(auth0Client))
+          },
+          method: 'POST',
+          signal: new AbortController().signal
+        },
+        auth: {
+          audience: '__test_audience__',
+          scope: '__test_scope__'
+        },
+        timeout: 10000
+      },
+      expect.arrayContaining([expect.anything()])
+    );
+  });
+
   it('handles error with error response', async () => {
     const theError = {
       error: 'the-error',

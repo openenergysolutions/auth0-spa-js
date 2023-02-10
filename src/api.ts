@@ -1,5 +1,5 @@
 import { TokenEndpointOptions, TokenEndpointResponse } from './global';
-import { DEFAULT_AUTH0_CLIENT } from './constants';
+import { DEFAULT_AUTH0_CLIENT, DEFAULT_TOKEN_PATH } from './constants';
 import { getJSON } from './http';
 import { createQueryParams } from './utils';
 
@@ -11,6 +11,7 @@ export async function oauthToken(
     scope,
     auth0Client,
     useFormData,
+    tokenPath = DEFAULT_TOKEN_PATH,
     ...options
   }: TokenEndpointOptions,
   worker?: Worker
@@ -20,7 +21,7 @@ export async function oauthToken(
     : JSON.stringify(options);
 
   return await getJSON<TokenEndpointResponse>(
-    `${baseUrl}/oauth/token`,
+    `${baseUrl}/${tokenPath}`,
     timeout,
     audience || 'default',
     scope,

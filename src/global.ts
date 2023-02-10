@@ -546,6 +546,7 @@ export interface OAuthTokenOptions extends TokenEndpointOptions {
   redirect_uri: string;
   audience: string;
   scope: string;
+  tokenPath?: string;
 }
 
 /**
