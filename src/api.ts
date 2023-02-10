@@ -11,6 +11,7 @@ export async function oauthToken(
     scope,
     auth0Client,
     useFormData,
+    disableAuth0Client,
     tokenPath = DEFAULT_TOKEN_PATH,
     ...options
   }: TokenEndpointOptions,
@@ -32,9 +33,9 @@ export async function oauthToken(
         'Content-Type': useFormData
           ? 'application/x-www-form-urlencoded'
           : 'application/json',
-        'Auth0-Client': btoa(
-          JSON.stringify(auth0Client || DEFAULT_AUTH0_CLIENT)
-        )
+        'Auth0-Client': disableAuth0Client
+          ? undefined
+          : btoa(JSON.stringify(auth0Client || DEFAULT_AUTH0_CLIENT))
       }
     },
     worker,

@@ -261,6 +261,11 @@ export interface Auth0ClientOptions extends BaseLoginOptions {
   useFormData?: boolean;
 
   /**
+   * When true, the Auth0-Client header will be omitted
+   */
+  disableAuth0Client?: boolean;
+
+  /**
    * Modify the value used as the current time during the token validation.
    *
    * **Note**: Using this improperly can potentially compromise the token validation.
@@ -523,6 +528,7 @@ export interface TokenEndpointOptions {
   timeout?: number;
   auth0Client: any;
   useFormData?: boolean;
+  disableAuth0Client?: boolean;
   [key: string]: any;
 }
 
