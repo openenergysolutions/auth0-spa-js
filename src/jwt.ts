@@ -52,6 +52,10 @@ export const decode = (token: string) => {
       user[k] = payloadJSON[k];
     }
   });
+  // Make sure claims.iss ends with a slash
+  if (claims.iss && !claims.iss.endsWith('/')) {
+    claims.iss += '/';
+  }
   return {
     encoded: { header, payload, signature },
     header: JSON.parse(urlDecodeB64(header)),
@@ -105,8 +109,7 @@ export const verify = (options: JWTVerifyOptions) => {
   if (Array.isArray(decoded.claims.aud)) {
     if (!decoded.claims.aud.includes(options.aud)) {
       throw new Error(
-        `Audience (aud) claim mismatch in the ID token; expected "${
-          options.aud
+        `Audience (aud) claim mismatch in the ID token; expected "${options.aud
         }" but was not one of "${decoded.claims.aud.join(', ')}"`
       );
     }
