@@ -3,6 +3,10 @@ import { DEFAULT_AUTH0_CLIENT, DEFAULT_TOKEN_PATH } from './constants';
 import { getJSON } from './http';
 import { createQueryParams } from './utils';
 
+interface Headers {
+  [key: string]: string;
+}
+
 export async function oauthToken(
   {
     baseUrl,
@@ -20,6 +24,14 @@ export async function oauthToken(
   const body = useFormData
     ? createQueryParams(options)
     : JSON.stringify(options);
+  const headers: Headers = {
+    'Content-Type': useFormData
+      ? 'application/x-www-form-urlencoded'
+      : 'application/json',
+  };
+  if (!disableAuth0Client) {
+    headers['Auth0-Client'] = btoa(JSON.stringify(auth0Client || DEFAULT_AUTH0_CLIENT));
+  }
 
   return await getJSON<TokenEndpointResponse>(
     `${baseUrl}/${tokenPath}`,
@@ -29,14 +41,7 @@ export async function oauthToken(
     {
       method: 'POST',
       body,
-      headers: {
-        'Content-Type': useFormData
-          ? 'application/x-www-form-urlencoded'
-          : 'application/json',
-        'Auth0-Client': disableAuth0Client
-          ? undefined
-          : btoa(JSON.stringify(auth0Client || DEFAULT_AUTH0_CLIENT))
-      }
+      headers
     },
     worker,
     useFormData

@@ -338,6 +338,7 @@ export default class Auth0Client {
       useRefreshTokens,
       useCookiesForTransactions,
       useFormData,
+      disableAuth0Client,
       auth0Client,
       cacheLocation,
       advancedOptions,
@@ -501,7 +502,12 @@ export default class Auth0Client {
       }
     }
 
-    const { authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH, tokenPath = this.options.tokenPath || DEFAULT_TOKEN_PATH, ...authorizeOptions } = options;
+    const {
+      authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH,
+      tokenPath = this.options.tokenPath || DEFAULT_TOKEN_PATH,
+      disableAuth0Client = this.options.disableAuth0Client,
+      ...authorizeOptions
+    } = options;
     const stateIn = encode(createRandomString());
     const nonceIn = encode(createRandomString());
     const code_verifier = createRandomString();
@@ -547,6 +553,7 @@ export default class Auth0Client {
         redirect_uri: params.redirect_uri,
         auth0Client: this.options.auth0Client,
         useFormData: this.options.useFormData,
+        disableAuth0Client,
         timeout: this.httpTimeoutMs,
         tokenPath
       } as OAuthTokenOptions,
@@ -715,6 +722,7 @@ export default class Auth0Client {
       code,
       auth0Client: this.options.auth0Client,
       useFormData: this.options.useFormData,
+      disableAuth0Client: this.options.disableAuth0Client,
       timeout: this.httpTimeoutMs,
       tokenPath
     } as OAuthTokenOptions;
@@ -1089,7 +1097,13 @@ export default class Auth0Client {
     const code_challengeBuffer = await sha256(code_verifier);
     const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
 
-    const { authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH, tokenPath = this.options.tokenPath || DEFAULT_TOKEN_PATH, detailedResponse, ...withoutClientOptions } = options;
+    const {
+      authorizePath = this.options.authorizePath || DEFAULT_AUTHORIZE_PATH,
+      tokenPath = this.options.tokenPath || DEFAULT_TOKEN_PATH,
+      disableAuth0Client = this.options.disableAuth0Client,
+      detailedResponse,
+      ...withoutClientOptions
+    } = options;
 
     const params = this._getParams(
       withoutClientOptions,
@@ -1157,6 +1171,7 @@ export default class Auth0Client {
           redirect_uri: params.redirect_uri,
           auth0Client: this.options.auth0Client,
           useFormData: this.options.useFormData,
+          disableAuth0Client,
           timeout: customOptions.timeout || this.httpTimeoutMs,
           tokenPath
         } as OAuthTokenOptions,
@@ -1231,6 +1246,7 @@ export default class Auth0Client {
       ignoreCache,
       timeoutInSeconds,
       detailedResponse,
+      disableAuth0Client = this.options.disableAuth0Client,
       ...customOptions
     } = options;
 
@@ -1254,6 +1270,7 @@ export default class Auth0Client {
           ...(timeout && { timeout }),
           auth0Client: this.options.auth0Client,
           useFormData: this.options.useFormData,
+          disableAuth0Client,
           timeout: this.httpTimeoutMs
         } as RefreshTokenOptions,
         this.worker

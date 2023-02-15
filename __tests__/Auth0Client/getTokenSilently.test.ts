@@ -376,7 +376,7 @@ describe('Auth0Client', () => {
 
       await getTokenSilently(auth0);
 
-      expect((http.switchFetch as jest.Mock).mock.calls[0][6]).toEqual(30000);
+      expect((http.switchFetch as jest.Mock).mock.calls[0][7]).toEqual(30000);
     });
 
     it('refreshes the token when no cache available', async () => {
@@ -1721,7 +1721,7 @@ describe('Auth0Client', () => {
         1
       );
 
-      expect((http.switchFetch as jest.Mock).mock.calls[0][6]).toEqual(20000);
+      expect((http.switchFetch as jest.Mock).mock.calls[0][7]).toEqual(20000);
     });
 
     it('when using Refresh Tokens, falls back to iframe when refresh token is expired', async () => {
