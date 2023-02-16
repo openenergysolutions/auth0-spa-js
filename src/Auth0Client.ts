@@ -1,4 +1,5 @@
 import Lock from 'browser-tabs-lock';
+import jwt_decode from 'jwt-decode';
 
 import {
   createQueryParams,
@@ -733,21 +734,28 @@ export default class Auth0Client {
     }
 
     const authResult = await oauthToken(tokenOptions, this.worker);
+    const decodedAccessToken = jwt_decode(authResult.access_token) as any;
 
     const decodedToken = await this._verifyIdToken(
       authResult.id_token,
       transaction.nonce,
       transaction.organizationId
     );
+    // Copy roles from decodedAccessToken.resource_access.gms.roles to decodedToken.user['http://oes.com/roles']
+    if (decodedAccessToken.resource_access && decodedAccessToken.resource_access.gms && decodedAccessToken.resource_access.gms.roles) {
+      decodedToken.user['http://oes.com/roles'] = decodedAccessToken.resource_access.gms.roles;
+    }
 
-    await this.cacheManager.set({
+    const cacheEntry = {
       ...authResult,
       decodedToken,
       audience: transaction.audience,
       scope: transaction.scope,
       ...(authResult.scope ? { oauthTokenScope: authResult.scope } : null),
       client_id: this.options.client_id
-    });
+    };
+
+    await this.cacheManager.set(cacheEntry);
 
     this.cookieStorage.save(this.isAuthenticatedCookieName, true, {
       daysUntilExpire: this.sessionCheckExpiryDays,
@@ -930,10 +938,12 @@ export default class Auth0Client {
           ? await this._getTokenUsingRefreshToken(getTokenOptions)
           : await this._getTokenFromIFrame(getTokenOptions);
 
-        await this.cacheManager.set({
+        const cacheEntry = {
           client_id: this.options.client_id,
           ...authResult
-        });
+        };
+
+        await this.cacheManager.set(cacheEntry);
 
         this.cookieStorage.save(this.isAuthenticatedCookieName, true, {
           daysUntilExpire: this.sessionCheckExpiryDays,
